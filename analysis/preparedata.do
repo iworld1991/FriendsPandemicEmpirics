@@ -2,6 +2,7 @@
 
 /*************
 
+- covid daily and monthly case/death data from JHU 
 - acs data for county heterogeneity variables 
   - ipums census data for the share of IT 
 - laus county data 
@@ -9,6 +10,53 @@
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
+
+
+*----------------------------Covid case/death data 
+
+*https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
+** first run the python script python/covid_reshape.py to reshape the raw data 
+
+***using the JHU tracker
+use "$friends/data/other/covid_counties_jhu.dta",clear
+gen length=length(date)
+gen month=substr(date,1,1) if substr(date,2,1)=="/"
+replace month=substr(date,1,2) if substr(date,3,1)=="/"
+gen day=""
+replace day=substr(date,-4,1) if substr(date,-5,1)=="/" & substr(date,-3,1)=="/"
+replace day=substr(date,-5,2) if substr(date,-6,1)=="/" & substr(date,-3,1)=="/"
+gen year=substr(date,-2,2)
+replace year="2020" if year=="20"
+replace year="2021" if year=="21"
+replace year="2022" if year=="22"
+replace year="2023" if year=="23"
+destring year month day,replace
+ren FIPS county
+drop UID date_id Population date
+merge m:1 county using "$friends/data/social explorer/acs2014_2018.dta"
+keep if _merge==3
+drop _merge
+gen casespc=cases/totpop
+gen deathspc=deaths/totpop
+drop hhincome-poverty_65pl
+egen tid=group(year month day)
+tsset county tid
+gen lag7_cases=L7.cases
+gen lag14_cases=L14.cases
+gen lag7_deaths=L7.deaths
+gen lag14_deaths=L14.deaths
+drop tid
+saveold "$friends/data/other/covid_jhu.dta",replace version(13)
+
+*save monthly
+use "$friends/data/other/covid_jhu.dta",clear
+gen date = mdy(month, day, year)
+format date %d
+bysort county year month (date): gen last_day = _N == _n
+keep if last_day == 1
+drop day date
+save "$friends/data/other/covid_jhu_monthly.dta",replace
+
 
 *------------------------------ clean social explorer
 
@@ -81,5 +129,6 @@ ren org_us_unemployment_001_20jan_ra urate1
 keep county urate*
 reshape long urate,i(county) j(month)
 saveold "$friends/data/social explorer/laus2020.dta",replace version(13)
+
 
 
