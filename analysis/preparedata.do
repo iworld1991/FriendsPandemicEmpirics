@@ -12,7 +12,7 @@
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 
-*----------------------------Covid case/death data 
+*----------------------------Covid case/death data for county and for countries 
 
 *https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
 ** first run the python script python/covid_reshape.py to reshape the raw data 
@@ -56,6 +56,19 @@ bysort county year month (date): gen last_day = _N == _n
 keep if last_day == 1
 drop day date
 save "$friends/data/other/covid_jhu_monthly.dta",replace
+
+
+*get US Time series: https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
+import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("cases_data")
+gen month=month(date)
+gen day=day(date)
+saveold "$friends/data/other/covid_world_cases.dta",replace version(13)
+
+import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("deaths_data")
+gen month=month(date)
+gen day=day(date)
+saveold "$friends/data/other/covid_world_deaths.dta",replace version(13)
+
 
 
 *------------------------------ clean social explorer
