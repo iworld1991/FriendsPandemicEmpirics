@@ -4,6 +4,9 @@
 
 - clean Facebook SCI index 
   - for both county-to-county and country-to-CounTRY
+- create SCI weighted cases/deaths 
+   - daily and then monthly 
+- create PCI weighted cases/deaths 
 - clean data on stay at home orders
 - clean Covid daily and monthly case/death data from JHU 
   - by both counTY and counTRY  
@@ -16,6 +19,7 @@
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 
+/*
 *------------------------------ clean facebook SCI
 
 *could (But do not for model reasons) exclude own county ties and create measure excluding own state
@@ -83,6 +87,87 @@ saveold "$friends/data/facebook/country_SCI_selected.dta",replace version(13)
 use "$friends/data/facebook/country_SCI_selected.dta",clear
 sum sci_italy sci_southkorea sci_france sci_spain if county==04013 // maricopa county
 sum sci_italy sci_southkorea sci_france sci_spain if county==06075 // san francisco
+*/
+
+*-------------------------------------- create SCI measures for cases and deaths 
+**************************************************************
+
+use "$friends/data/other/covid_jhu", clear 
+gen date = mdy(month, day, year)
+format date %d
+levelsof date, local(ts)
+
+*for each county, keep a particular tid and merge in SCI data 
+quietly foreach t of local ts{
+	use "$friends/data/other/covid_jhu.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	keep if date==`t'
+	ren county fr_county
+	merge 1:m fr_county using "$friends/data/facebook/county_county_data.dta"
+	keep if _merge==3
+	drop _merge
+	gen casesSCI_loo=cases*scaled_sci_loo/100
+	gen deathsSCI_loo=deaths*scaled_sci_loo/100
+	gen casesnormSCI_all=cases*normSCI_all
+	gen deathsnormSCI_all=deaths*normSCI_all
+	gen casesnormSCI_loo=cases*normSCI_loo
+	gen deathsnormSCI_loo=deaths*normSCI_loo
+	gen casesnormSCInost_loo=cases*normSCInost_loo
+	gen deathsnormSCInost_loo=deaths*normSCInost_loo
+	collapse (mean) casesSCI_loo deathsSCI_loo (sum) casesnormSCI_all-deathsnormSCInost_loo,by(user_county day month year)
+	cd "$friends/data/facebook"
+	save tempfile`t'.dta,replace
+}
+
+cd "$friends/data/facebook"
+
+use tempfile21936.dta,replace
+
+quietly foreach t in  `ts'{
+	if `t'!=21936{
+		append using tempfile`t'.dta
+		erase tempfile`t'.dta
+	}
+}
+erase tempfile21936.dta
+saveold "$friends/data/facebook/covid_counties_SCI.dta",replace version(13)
+
+*----- create the same data but monthly
+ 
+quietly forval t=1/39{
+	use "$friends/data/other/covid_jhu.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	bysort county year month (date): gen last_day = _N == _n
+	keep if last_day == 1
+	egen tid=group(year month day)
+	keep if tid==`t'
+	ren county fr_county
+	merge 1:m fr_county using "$friends/data/facebook/county_county_data.dta"
+	keep if _merge==3
+	drop _merge
+	gen casesSCI_loo=cases*scaled_sci_loo/100
+	gen deathsSCI_loo=deaths*scaled_sci_loo/100
+	gen casesnormSCI_all=cases*normSCI_all
+	gen deathsnormSCI_all=deaths*normSCI_all
+	gen casesnormSCI_loo=cases*normSCI_loo
+	gen deathsnormSCI_loo=deaths*normSCI_loo
+	gen casesnormSCInost_loo=cases*normSCInost_loo
+	gen deathsnormSCInost_loo=deaths*normSCInost_loo
+	collapse (mean) casesSCI_loo deathsSCI_loo (sum) casesnormSCI_all-deathsnormSCInost_loo,by(user_county year month)
+	cd "$friends/data/facebook"
+	save tempfile`t'.dta,replace
+}
+
+cd "$friends/data/facebook"
+use tempfile1.dta,replace
+quietly forval t=2/39{
+	append using tempfile`t'.dta
+	erase tempfile`t'.dta
+}
+erase tempfile1.dta
+saveold "$friends/data/facebook/covid_counties_SCI_monthly.dta",replace version(13)
 
 
 *------------------------------ clean stay at home orders
