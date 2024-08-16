@@ -2,6 +2,7 @@
 
 /*************
 
+- clean Facebook SCI index 
 - clean stay at home orders
 - covid daily and monthly case/death data from JHU 
   - by both counTY and counTRY  
@@ -13,6 +14,43 @@
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
+
+*------------------------------ clean facebook SCI
+
+*could (But do not for model reasons) exclude own county ties and create measure excluding own state
+insheet using "$friends/data/facebook/county_county_data.tsv",clear
+tostring user_county fr_county,replace 
+gen user_st=substr(user_county,1,2) if length(user_county)==5
+replace user_st=substr(user_county,1,1) if length(user_county)==4
+gen fr_st=substr(fr_county,1,2) if length(fr_county)==5
+replace fr_st=substr(fr_county,1,1) if length(fr_county)==4
+destring user_st fr_st user_county fr_county,replace
+
+gen samestate=0
+replace samestate=1 if user_st==fr_st
+//gen scaled_sci_otherst=scaled_sci if samestate!=1
+
+bysort user_county: egen totSCI_all=sum(scaled_sci)
+gen normSCI_all=scaled_sci/totSCI_all
+//bysort user_county: egen totSCI_otherst=sum(scaled_sci_otherst)
+//gen normSCI_otherst=scaled_sci_otherst/totSCI_otherst
+
+*remove friendship ties in the same county
+gen scaled_sci_loo=scaled_sci
+replace scaled_sci_loo=. if user_county==fr_county
+
+*create new normalized
+bysort user_county: egen totSCI_loo=sum(scaled_sci_loo)
+gen normSCI_loo=scaled_sci_loo/totSCI_loo
+gen normSCInost_loo=normSCI_loo if samestate==0
+
+keep user_county fr_county normSCI_all normSCI_loo scaled_sci_loo normSCInost_loo
+save "$friends/data/facebook/county_county_data.dta",replace
+
+
+*example summary stats: https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013697
+sum scaled_sci if user_county==04013 & fr_county==53033 // maricopa county TO king county (tacoma/seattle WA)
+sum scaled_sci if user_county==06075 & fr_county==53033 // san francisco TO king county (tacoma/seattle WA)
 
 *------------------------------ clean stay at home orders
 
