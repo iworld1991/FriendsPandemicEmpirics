@@ -3,12 +3,12 @@
 /*************
 
 - acs data for county heterogeneity variables 
-
+  - ipums census data for the share of IT 
+- laus county data 
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
-
 
 *------------------------------ clean social explorer
 
@@ -64,5 +64,22 @@ keep if _merge==3 | _merge==1
 drop _merge
 keep county high*
 saveold "$friends/data/social explorer/county_heterog_indicators.dta",replace version(13)
+
+
+*-------------------- laus data for county unemployment rate stats
+
+*2020 LAUS: https://www.socialexplorer.com/tables/US_unemployment_2020/R12654293
+insheet using "$friends/data/social explorer/laus2020data.txt",clear
+ren geo_fips county
+ren org_us_unemployment_018_20jul_ra urate7
+ren org_us_unemployment_017_20jun_ra urate6
+ren org_us_unemployment_016_20may_ra urate5
+ren org_us_unemployment_015_20apr_ra urate4
+ren org_us_unemployment_003_20mar_ra urate3
+ren org_us_unemployment_002_20feb_ra urate2
+ren org_us_unemployment_001_20jan_ra urate1
+keep county urate*
+reshape long urate,i(county) j(month)
+saveold "$friends/data/social explorer/laus2020.dta",replace version(13)
 
 
