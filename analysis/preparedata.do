@@ -14,6 +14,8 @@
 - clean acs data for county heterogeneity variables 
   - clean ipums census data for the share of IT 
 - clean laus county data 
+- clean Google mobility data 
+- prepare idiosyncratic/orthogonalized covid shocks 
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
@@ -457,6 +459,135 @@ ren org_us_unemployment_001_20jan_ra urate1
 keep county urate*
 reshape long urate,i(county) j(month)
 saveold "$friends/data/social explorer/laus2020.dta",replace version(13)
+
+
+*--------------------------create mobility data 
+
+import delimited "$friends/data/other/Google Mobility - County - Daily.csv",clear
+gen monthly_date = mdy(month,day,year)
+format monthly_date %td
+gen county=countyfips
+drop countyfips
+save "$friends/data/other/mobility_county_D.dta", replace
+
+
+*------------------------------ Create idiosyncratic and orthogonalized covid 
+
+use "$friends/data/other/covid_jhu.dta",clear
+gen tid = mdy(month, day, year)
+gen lcases=asinh(cases)
+gen ldeaths = asinh(deaths)
+
+tsset county tid
+
+** idio shocks to cases levels
+
+capture drop FE*
+reghdfe lcases,a(FEtid=tid) resid 
+predict lcases_shock,resid
+label var lcases_shock "idiosyncratic shocks to log cases"
+sum FEtid,d
+
+** idio shocks to case growth  
+gen dl1cases=lcases-L.lcases
+*generate terms for model
+capture drop FE*
+
+reghdfe dl1cases,a(FEtid=tid) resid
+predict dl1cases_shock,resid
+label var dl1cases_shock "idiosyncratic shocks to log change in cases"
+sum FEtid,d
+
+** ido shocks to deaths levels
+
+capture drop FE*
+reghdfe ldeaths,a(FEtid=tid) resid
+predict ldeaths_shock,resid
+label var ldeaths_shock "idiosyncratic shocks to log deaths"
+sum FEtid,d
+
+
+** ido shocks to deaths growth
+gen dl1deaths=ldeaths-L.ldeaths
+capture drop FE*
+reghdfe dl1deaths,a(FEtid=tid) resid
+predict dl1deaths_shock,resid
+label var dl1deaths_shock "idiosyncratic shocks to log change in deaths"
+sum FEtid,d
+
+summarize lcases_shock dl1cases_shock ldeaths_shock dl1deaths_shock
+
+keep county month day year lcases_shock dl1cases_shock ldeaths_shock dl1deaths_shock
+saveold "$friends/data/other/covid_jhu_shocks.dta",replace version(13)
+
+** create SCI measures for shocks 
+
+use "$friends/data/other/covid_jhu_shocks", clear 
+gen date = mdy(month, day, year)
+format date %d
+levelsof date, local(ts)
+
+*for each county, keep a particular tid and merge in SCI data 
+quietly foreach t of local ts{
+	use "$friends/data/other/covid_jhu_shocks.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	keep if date==`t'
+	ren county fr_county
+	merge 1:m fr_county using "$friends/data/facebook/county_county_data.dta"
+	keep if _merge==3
+	drop _merge
+	* level shocks 
+	gen lcasesshock_SCI_loo=lcases_shock*scaled_sci_loo/100
+	gen ldeathsshock_SCI_loo=ldeaths_shock*scaled_sci_loo/100
+	
+	gen lcasesshock_normSCI_all=lcases_shock*normSCI_all
+	gen ldeathsshock_normSCI_all=ldeaths_shock*normSCI_all
+	
+	gen lcasesshock_normSCI_loo=lcases_shock*normSCI_loo
+	gen ldeathsshock_normSCI_loo=ldeaths_shock*normSCI_loo
+	
+	gen lcasesshock_normSCInost_loo=lcases_shock*normSCInost_loo
+	gen ldeathsshock_normSCInost_loo=ldeaths_shock*normSCInost_loo
+	
+	* growth shocks
+	gen dl1casesshock_SCI_loo=dl1cases_shock*scaled_sci_loo/100
+	gen dl1deathsshock_SCI_loo=dl1deaths_shock*scaled_sci_loo/100
+	
+	gen dl1casesshock_normSCI_all=dl1cases_shock*normSCI_all
+	gen dl1deathsshock_normSCI_all=dl1deaths_shock*normSCI_all
+	
+	gen dl1casesshock_normSCI_loo=dl1cases_shock*normSCI_loo
+	gen dl1deathsshock_normSCI_loo=dl1deaths_shock*normSCI_loo
+	
+	gen dl1casesshock_normSCInost_loo=dl1cases_shock*normSCInost_loo
+	gen dl1deathsshock_normSCInost_loo=dl1deaths_shock*normSCInost_loo
+	
+	
+	collapse (mean) lcasesshock_SCI_loo ldeathsshock_SCI_loo (sum) lcasesshock_normSCI_all-ldeathsshock_normSCInost_loo ///
+	 (mean) dl1casesshock_SCI_loo dl1deathsshock_SCI_loo (sum) dl1casesshock_normSCI_all-dl1deathsshock_normSCInost_loo, by(user_county day month year)
+	cd "$friends/data/facebook"
+	save tempfile`t'.dta,replace
+}
+
+use "$friends/data/other/covid_jhu_shocks", clear 
+gen date = mdy(month, day, year)
+format date %d
+levelsof date, local(ts)
+display "`ts'"
+
+cd "$friends/data/facebook"
+
+
+use tempfile21936.dta,replace
+quietly foreach t in  `ts'{
+	if `t'!=21936{
+		append using tempfile`t'.dta
+		erase tempfile`t'.dta
+	}
+}
+erase tempfile21936.dta
+saveold "$friends/data/facebook/covid_shocks_counties_SCI.dta",replace version(13)
 
 
 
