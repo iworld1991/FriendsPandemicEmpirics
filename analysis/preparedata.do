@@ -2,6 +2,7 @@
 
 /*************
 
+- clean stay at home orders
 - covid daily and monthly case/death data from JHU 
   - by both counTY and counTRY  
 - acs data for county heterogeneity variables 
@@ -13,6 +14,17 @@
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 
+*------------------------------ clean stay at home orders
+
+import excel using "$friends/data/other/state_saho.xlsx",clear firstrow sheet("Sheet1")
+ren fips st
+drop name state
+quietly destring,replace
+local torep "cc_closed state_emer pschl_closure stay_home noness_bus_closure"
+quietly foreach var in `torep'{
+	replace `var'=0 if `var'==.
+}
+saveold "$friends/data/other/state_saho.dta",replace version(13)
 
 
 *----------------------------Covid case/death data for county and for countries 
