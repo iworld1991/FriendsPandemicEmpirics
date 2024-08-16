@@ -4,10 +4,12 @@
 /*************
 - merge it with SCI, census and other dataset
 analysis  
-- Figure A.3-A.4 in the draft 
-- Table 1. baseline result 
+- Figure A.3-A.4 
+- Table 1. baseline regression results  
 - Table 2. heterogeneity analysis 
 - Table 3. robustness with phsyical distance weighted measures controlled 
+- Table 4. 
+- Table 5. 
 - Table 6. internationl analysis 
  - Table A.10. additional countries 
 - Table A.8 robustness using alternative consumption measure 
@@ -32,7 +34,7 @@ rename _merge fb_merge
 
 gen county = user_county 
 
-merge 1:1 county month day using "$friends/data/physical/covid_counties_PCI.dta", ///
+merge 1:1 county year month day using "$friends/data/physical/covid_counties_PCI.dta", ///
       keep(match)
 rename _merge pci_merge 
 
@@ -512,8 +514,6 @@ replace SCI_cty_exposure = sci_`cty'/totpop
 summarize SCI_cty_exposure 
 replace lcasesSCI_cty = lcases_`cty'*SCI_cty_exposure
 replace ldeathsSCI_cty = ldeaths_`cty'*SCI_cty_exposure
-*replace lcasesSCI_cty = log(cases_`cty'*sci_`cty')
-*replace ldeathsSCI_cty = log(deaths_`cty'*sci_`cty')
 
 ** cases 
 reghdfe ltotal_spend lcases ldeaths lcasesSCI_cty, a(date fips) vce(cl fips) 

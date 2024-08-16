@@ -1,9 +1,7 @@
 *------------------------------ Robustness results
 
 /*************
-
 - Figure A.5 France and Italy's covid cases 
-
 - Figure A.6 comparison of the PCI and SCI
 ****************/
 
@@ -11,7 +9,6 @@
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 set scheme s1color
-
 
 
 *----------------------- Figure A.5 comparison of different foreign countries' time-patterns of Covid cases
