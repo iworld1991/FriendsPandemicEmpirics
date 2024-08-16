@@ -3,12 +3,13 @@
 /*************
 
 - clean Facebook SCI index 
-- clean stay at home orders
-- covid daily and monthly case/death data from JHU 
+  - for both county-to-county and country-to-CounTRY
+- clean data on stay at home orders
+- clean Covid daily and monthly case/death data from JHU 
   - by both counTY and counTRY  
-- acs data for county heterogeneity variables 
-  - ipums census data for the share of IT 
-- laus county data 
+- clean acs data for county heterogeneity variables 
+  - clean ipums census data for the share of IT 
+- clean laus county data 
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
@@ -51,6 +52,38 @@ save "$friends/data/facebook/county_county_data.dta",replace
 *example summary stats: https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013697
 sum scaled_sci if user_county==04013 & fr_county==53033 // maricopa county TO king county (tacoma/seattle WA)
 sum scaled_sci if user_county==06075 & fr_county==53033 // san francisco TO king county (tacoma/seattle WA)
+
+*-----------------------------county-to-counTRY
+
+*country iso code: https://www.nationsonline.org/oneworld/country_code_list.htm
+***international: county to country
+insheet using "$friends/data/facebook/County_Country.csv",clear
+ren own_county county
+keep county friend_country sci_cntry rel_prob_friend_cntry
+save "$friends/data/facebook/County_Country.dta",replace
+
+use "$friends/data/facebook/County_Country.dta",clear
+gen sci_italy=sci_cntry if friend_country=="IT"
+gen sci_southkorea=sci_cntry if friend_country=="KR"
+gen sci_japan=sci_cntry if friend_country=="JP"
+gen sci_singapore=sci_cntry if friend_country=="SG"
+gen sci_spain=sci_cntry if friend_country=="ES"
+gen sci_france=sci_cntry if friend_country=="FR"
+collapse (mean) sci_italy-sci_france,by(county)
+xtile sciITAgrp=sci_italy,nq(10)
+xtile sciSKgrp=sci_southkorea,nq(10)
+xtile sciJAPgrp=sci_japan,nq(10)
+xtile sciSINGAgrp=sci_singapore,nq(10)
+xtile sciSPAgrp=sci_spain,nq(10)
+xtile sciFRAgrp=sci_france,nq(10)
+saveold "$friends/data/facebook/country_SCI_selected.dta",replace version(13)
+
+
+*example summary stats: https://www.nrcs.usda.gov/wps/portal/nrcs/detail/?cid=nrcs143_013697
+use "$friends/data/facebook/country_SCI_selected.dta",clear
+sum sci_italy sci_southkorea sci_france sci_spain if county==04013 // maricopa county
+sum sci_italy sci_southkorea sci_france sci_spain if county==06075 // san francisco
+
 
 *------------------------------ clean stay at home orders
 
