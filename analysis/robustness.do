@@ -2,8 +2,9 @@
 
 /*************
 
-- Figure A.6 comparison of the PCI and SCI
+- Figure A.5 France and Italy's covid cases 
 
+- Figure A.6 comparison of the PCI and SCI
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
@@ -11,7 +12,17 @@ global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 set scheme s1color
 
-*------------------------------ comparison of the PCI and SCI
+
+
+*----------------------- Figure A.5 comparison of different foreign countries' time-patterns of Covid cases
+
+use "$friends/data/other/covid_world_cases.dta",clear
+ 
+twoway (line cases_italy date, clcolor(dknavy) clwidth(thin) clpattern(solid) ) (line cases_france date, clcolor(red*1.2) clwidth(thin) clpattern(dash) ) , xtitle("Date") legend(order(1 "Italy" 2 "France")) ytitle("Number of COVID-19 Cases")
+graph export "$friends/graph/timeseries_ita_fra_covid.pdf", as(pdf) replace
+
+
+*------------------------------Figure A.6 comparison of the PCI and SCI
 
 use "$friends/data/facebook/covid_counties_SCI_monthly.dta",clear
 ren user_county county

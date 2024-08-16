@@ -3,6 +3,7 @@
 /*************
 
 - covid daily and monthly case/death data from JHU 
+  - by both counTY and counTRY  
 - acs data for county heterogeneity variables 
   - ipums census data for the share of IT 
 - laus county data 
@@ -10,6 +11,8 @@
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
+
+
 
 
 *----------------------------Covid case/death data for county and for countries 
@@ -68,7 +71,6 @@ import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("
 gen month=month(date)
 gen day=day(date)
 saveold "$friends/data/other/covid_world_deaths.dta",replace version(13)
-
 
 
 *------------------------------ clean social explorer
