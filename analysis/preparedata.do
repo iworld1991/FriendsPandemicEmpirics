@@ -6,6 +6,7 @@
   - for both county-to-county and country-to-CounTRY
 - create SCI weighted cases/deaths 
    - daily and then monthly 
+   - and one with only counties +500 miles away 
 - create PCI weighted cases/deaths 
 - clean data on stay at home orders
 - clean Covid daily and monthly case/death data from JHU 
@@ -169,8 +170,152 @@ quietly forval t=2/39{
 erase tempfile1.dta
 saveold "$friends/data/facebook/covid_counties_SCI_monthly.dta",replace version(13)
 
+*-------------------------------------- create SCI cases and deaths measures for only counties 500 +miles away 
 
-*------------------------------ clean stay at home orders
+*exclude nearby (within 500 miles) counties: https://www.nber.org/research/data/county-distance-database
+insheet using "$friends/data/sf12010countydistance500miles.csv",clear
+renvars county1 county2 \ user_county fr_county
+drop mi
+merge 1:m user_county fr_county using "$friends\data\facebook\county_county_data.dta"
+keep if _merge==2
+drop _merge
+save "$friends/data/facebook/county_county_data_far.dta",replace
+
+** daily 
+
+use "$friends/data/other/covid_jhu", clear 
+gen date = mdy(month, day, year)
+format date %d
+levelsof date, local(ts)
+
+*for each county, keep a particular tid and merge in SCI data 
+quietly foreach t of local ts{
+	use "$friends/data/other/covid_jhu.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	keep if date==`t'
+	ren county fr_county
+	merge 1:m fr_county using "$friends/data/facebook/county_county_data_far.dta"
+	keep if _merge==3
+	drop _merge
+	gen casesSCI_loo_far=cases*scaled_sci_loo/100
+	gen deathsSCI_loo_far=deaths*scaled_sci_loo/100
+	gen casesnormSCI_all_far=cases*normSCI_all
+	gen deathsnormSCI_all_far=deaths*normSCI_all
+	gen casesnormSCI_loo_far=cases*normSCI_loo
+	gen deathsnormSCI_loo_far=deaths*normSCI_loo
+	gen casesnormSCInost_loo_far=cases*normSCInost_loo
+	gen deathsnormSCInost_loo_far=deaths*normSCInost_loo
+	collapse (mean) casesSCI_loo_far deathsSCI_loo_far (sum) casesnormSCI_all_far-deathsnormSCInost_loo_far,by(user_county day month year)
+	cd "$friends/data/facebook"
+	save tempfile`t'.dta,replace
+}
+
+cd "$friends/data/facebook"
+
+use tempfile21936.dta,replace
+
+quietly foreach t in  `ts'{
+	if `t'!=21936{
+		append using tempfile`t'.dta
+		erase tempfile`t'.dta
+	}
+}
+erase tempfile21936.dta
+saveold "$friends/data/facebook/covid_counties_SCI_far.dta",replace version(13)
+
+*-------------------------------clean physical distance measures and create PCI weighted cases/deaths 
+
+*https://data.nber.org/data/county-distance-database.html
+
+use "$friends/data/physical/sf12010countydistancemiles.dta",clear
+destring county1 county2,replace
+ren mi_to_county distance
+
+bysort county1: egen totPCI_all=sum(distance)
+gen normPCI_all=distance/totPCI_all
+*create new normalized
+gen distance_loo=distance
+replace distance_loo=. if county1==county2
+bysort county1: egen totPCI_loo=sum(distance_loo)
+gen normPCI_loo=distance/totPCI_loo
+keep county1 county2 normPCI_all normPCI_loo
+save "$friends/data/physical/sf12010countydistancemiles_clean.dta",replace
+
+*----- first montly 
+
+*for each county, keep a particular tid and merge in SCI data
+quietly forval t=1/39{
+	use "$friends/data/other/covid_jhu.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	bysort county year month (date): gen last_day = _N == _n
+	keep if last_day == 1
+	egen tid=group(year month)
+	keep if tid==`t'
+	ren county county2
+	merge 1:m county2 using "$friends/data/physical/sf12010countydistancemiles_clean.dta"
+	keep if _merge==3
+	drop _merge
+	gen casesnormPCI_loo=cases*normPCI_loo
+	gen deathsnormPCI_loo=deaths*normPCI_loo
+	collapse (sum) casesnormPCI_loo deathsnormPCI_loo,by(county1 month year)
+	cd "$friends/data/physical"
+	save tempfile`t'.dta,replace
+}
+
+cd "$friends/data/physical"
+use tempfile1.dta,replace
+quietly forval t=2/39{
+	append using tempfile`t'.dta
+	erase tempfile`t'.dta
+}
+*erase tempfile1.dta
+ren county1 county
+keep county year month casesnormPCI_loo deathsnormPCI_loo
+saveold "$friends/data/physical/covid_counties_PCI_monthly.dta",replace version(13)
+
+*----- also daily measures for only 2020 
+
+use "$friends/data/other/covid_jhu", clear 
+gen date = mdy(month, day, year)
+keep if year==2020 & month<=6
+format date %d
+levelsof date, local(ts)
+
+*for each county, keep a particular tid and merge in SCI data 
+quietly foreach t of local ts{
+use "$friends/data/other/covid_jhu.dta",clear
+	gen date = mdy(month, day, year)
+	format date %d
+	keep if date==`t'
+	ren county county2
+	merge 1:m county2 using "$friends/data/physical/sf12010countydistancemiles_clean.dta"
+	keep if _merge==3
+	drop _merge
+	gen casesnormPCI_loo=cases*normPCI_loo
+	gen deathsnormPCI_loo=deaths*normPCI_loo
+	collapse (sum) casesnormPCI_loo deathsnormPCI_loo,by(county1 month year)
+	cd "$friends/data/physical"
+	save tempfile`t'.dta,replace
+}
+
+cd "$friends/data/physical"
+use tempfile21936.dta,replace
+
+quietly foreach t in  `ts'{
+	if `t'!=21936{
+		append using tempfile`t'.dta
+		erase tempfile`t'.dta
+	}
+}
+erase tempfile21936.dta
+ren county1 county
+keep county year month day casesnormPCI_loo deathsnormPCI_loo
+saveold "$friends/data/physical/covid_counties_PCI.dta",replace version(13)
+
+
+*----------------------------------------------- clean stay at home orders
 
 import excel using "$friends/data/other/state_saho.xlsx",clear firstrow sheet("Sheet1")
 ren fips st

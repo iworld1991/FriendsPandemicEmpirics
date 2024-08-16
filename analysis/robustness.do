@@ -26,7 +26,7 @@ graph export "$friends/graph/timeseries_ita_fra_covid.pdf", as(pdf) replace
 
 use "$friends/data/facebook/covid_counties_SCI_monthly.dta",clear
 ren user_county county
-merge 1:m county year month using "$friends/data/physical/covid_counties_PCI.dta"
+merge 1:m county year month using "$friends/data/physical/covid_counties_PCI_monthly.dta"
 keep if _merge==3
 drop _merge
 gen lcasesnormSCI_loo=log(casesnormSCI_loo)
