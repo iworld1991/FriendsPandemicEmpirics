@@ -13,7 +13,10 @@
 
 
 ## Code
-
+### Python
+- [Reshaping raw microdata of Covid series](./analysis/python/covid_reshape.py)
+- [Validating consumption measures](./analysis/python/Compare.ipynb)
+### Stata
 - [Step1.preparing data](./analysis/preparedata.do)
 - [Step2.main results](./analysis/main.do)
 - [Step3.additional robustness results](./analysis/robustness.do)
