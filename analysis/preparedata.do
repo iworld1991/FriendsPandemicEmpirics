@@ -16,6 +16,8 @@
 - clean laus county data 
 - clean Google mobility data 
 - prepare idiosyncratic/orthogonalized covid shocks 
+- prepare idiosyncratic/orthogonalized consumption shocks 
+
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
@@ -588,6 +590,88 @@ quietly foreach t in  `ts'{
 }
 erase tempfile21936.dta
 saveold "$friends/data/facebook/covid_shocks_counties_SCI.dta",replace version(13)
+
+
+*------------------------------ Create idiosyncratic and orthogonalized consumption shocks  
+ 
+use "$friends/data/spending/spend2_bycounty_D_long.dta",clear
+
+gen tid = mdy(month, day, year)
+format tid %td 
+rename countyfips county 
+
+rename spend_all ltotal_spend2_chg
+tsset county tid
+
+** idio shocks to consumption 
+
+capture drop FE*
+reghdfe ltotal_spend2_chg,a(FEtid=tid) resid 
+predict ltotal_spend2_shk,resid
+label var ltotal_spend2_shk "idiosyncratic shocks to consumption growth"
+sum FEtid,d
+
+summarize ltotal_spend2_shk
+
+keep county month day year ltotal_spend2_shk
+saveold "$friends/data/other/spend2_bycounty_D_shocks.dta",replace version(13)
+
+
+** create SCI measures for consumption shocks 
+**************************************************************
+
+use "$friends/data/other/spend2_bycounty_D_shocks", clear 
+gen date = mdy(month, day, year)
+format date %td
+levelsof date, local(ts)
+
+*for each county, keep a particular tid and merge in SCI data 
+quietly foreach t of local ts{
+	use "$friends/data/other/spend2_bycounty_D_shocks.dta",clear
+	gen date = mdy(month, day, year)
+	format date %td
+	keep if date==`t'
+	ren county fr_county
+	merge 1:m fr_county using "$friends/data/facebook/county_county_data.dta"
+	keep if _merge==3
+	drop _merge
+	* level shocks 
+	gen spendshock_SCI_loo=ltotal_spend2_shk*scaled_sci_loo/100
+	
+	gen spendshock_normSCI_all=ltotal_spend2_shk*normSCI_all
+	
+	gen spendshock_normSCI_loo=ltotal_spend2_shk*normSCI_loo
+	
+	gen spendshock_normSCInost_loo=ltotal_spend2_shk*normSCInost_loo
+	
+	
+	collapse (mean) spendshock_SCI_loo (sum) spendshock_normSCI_all-spendshock_normSCInost_loo ///
+	, by(user_county day month year)
+	cd "$friends/data/facebook"
+	save tempfile`t'.dta,replace
+}
+
+
+use "$friends/data/other/spend2_bycounty_D_shocks", clear 
+gen date = mdy(month, day, year)
+format date %td
+levelsof date, local(ts)
+display "`ts'"
+
+cd "$friends/data/facebook"
+
+
+use tempfile21936.dta,replace
+
+quietly foreach t in  `ts'{
+	if `t'!=21936{
+		append using tempfile`t'.dta
+		erase tempfile`t'.dta
+	}
+}
+erase tempfile21936.dta
+saveold "$friends/data/facebook/spend_shocks_counties_SCI.dta",replace version(13)
+*/
 
 
 
