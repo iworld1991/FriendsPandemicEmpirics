@@ -1,14 +1,17 @@
-# Replication Repo of __Learing from Friends in a Pandemic, Social Network and Macroeconomic Responses of Consumption__
+# Replication Repo of _Learing from Friends in a Pandemic, Social Network and Macroeconomic Responses of Consumption_
 - This is a replication repo of the published paper in _European Economic Review_
 - Authors: [Tao Wang](taowangeconomics@gmail.com),  [Christos Makridis](christos.a.makridis@gmail.com)
 
-## Data 
+## Raw Data Sources
 
-### Raw Data 
-- xxx
-- xxx 
+- Data Name. Sample Period. Link. Location
+- Social Connectedness Index, 2016 and 2019. [Location](./data/facebook/)
+- Debit Card Transaction Data, 2020, Facteus through Safegraph's data-sharing initiative during the Covid pandemic.[Location](./data/spending/)
+- Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through Safegraph's dta-sharing inititive during the Covid and also in the Real-tim EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/)
+- Google mobility, 2020, Real-time EconomieicTracker as above.[Location](./data/other/)
+- American Community Survey (ACS) ([Location](./data/other/)
 
-### large data (>50mb)
+### large size (>50mb)
 - [County pairs 500+miles](./data/physical/sf12010countydistancemiles.dta)
 - [Facebook SCI](./data/physical/county_county_data.tsv)
 - [Google mobility](./data/other/)
