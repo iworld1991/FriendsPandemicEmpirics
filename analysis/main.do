@@ -4,7 +4,7 @@
 /*************
 - merge it with SCI, census and other dataset
 analysis  
-- Figure A.3-A.4 
+- Figure A.3-A.4 maps 
 - Table 1. baseline regression results  
 - Table 2. heterogeneity analysis 
 - Table 3. robustness with phsyical distance weighted measures controlled 

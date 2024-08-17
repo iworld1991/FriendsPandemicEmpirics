@@ -15,16 +15,10 @@ global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 set scheme s1color
 
-
-global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
-
-set scheme s1color
 set more off, permanently 
 capture log close 
 
-
 *----------------------Additional regression results 
-
 
 use "$friends/data/spending/spendbycountyD.dta",clear
 ** note: only avaiable in 2020. so the data merge below will keep data only for 2020
