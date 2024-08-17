@@ -1,16 +1,16 @@
 *------------------------------ Robustness results
 
 /*************
-- Figure A.5 France and Italy's covid cases 
-- Figure A.6 comparison of the PCI and SCI
+- Table A.1. using growth rate as dependent variable 
 - Table A.2. double cluster standard errors
 - Table A.4-A.5: robustness with SCI weighted idio shocks
 - Table A.6-A.7: robustness with SCI weighted idio and orthogonalized shocks
 - Table A.9. sensitivity tests of different sample periods 
 - Figure A.1. monthly consumption by category in 2020
+- Figure A.5 France and Italy's covid cases 
+- Figure A.6 comparison of the PCI and SCI
 ****************/
 
-*global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 set scheme s1color
@@ -151,6 +151,76 @@ gen md = month*100+day
 
 keep if md< 400
 
+*---------------------Table A.1 using growth rate as dependent variable 
+
+
+tsset fips date
+
+global stateX st_emerg saho saho_off bus_close_all bus_open_any reclose_any
+
+reghdfe ltotal_spend2_chg lcasesnormSCI_loo [aw=totpop], a(fips date) vce(cluster fips)
+ereturn list
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp1
+reghdfe ltotal_spend2_chg lcasesnormSCI_loo lcases ldeaths [aw=totpop], a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp2
+reghdfe ltotal_spend2_chg lcasesnormSCI_loo lcases ldeaths $stateX, a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "No",replace
+est sto temp3
+reghdfe ltotal_spend2_chg lcasesnormSCI_loo lcases ldeaths, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "Yes",replace
+est sto temp4
+
+reghdfe ltotal_spend2_chg ldeathsnormSCI_loo, a(fips date) vce(cluster fips)
+ereturn list
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp5
+reghdfe ltotal_spend2_chg ldeathsnormSCI_loo lcases ldeaths, a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp6
+reghdfe ltotal_spend2_chg ldeathsnormSCI_loo lcases ldeaths $stateX, a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "No",replace
+est sto temp7
+reghdfe ltotal_spend2_chg ldeathsnormSCI_loo lcases ldeaths, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "Yes",replace
+est sto temp8
+
+
+la var lcasesnormSCI_loo "log(SCI-weighted Cases)"
+la var ldeathsnormSCI_loo "log(SCI-weighted Deaths)"
+la var lcases "log(County Cases)"
+la var ldeaths "log(County Deaths)"
+
+local tokeep "lcasesnormSCI_loo ldeathsnormSCI_loo lcases ldeaths"
+
+esttab temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8 using "$friends/table/baseline_friends_spend_outofstate_growthrate_norm.tex", b(3) replace star(* 0.10 ** 0.05 *** 0.01)  mtitles("(1)" "(2)" "(3)" "(4)" "(5)" "(6)" "(7)" "(8)") nonum  brackets se mgroups("log(Consumption Expenditures) growth", pattern(1 0 0 0 0 0 0 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) label keep(`tokeep') order(`tokeep') stats(r2 N hasct hast hasstpol hasstY, label("R-squared" "Sample Size" "County FE" "Day FE" "State Policies" "State/Time FE") fmt(2 0)) parentheses nolz nogaps fragment nolines prehead("Dep. var. = ") eqlabel(none)
+
+
 *---------------------Table A.2. regression robustness with cluster standard errors by both county date 
 
 gen lcasesnormSCI_loo_saho=saho*lcasesnormSCI_loo
@@ -163,8 +233,6 @@ global stateX st_emerg saho saho_off bus_close_all bus_open_any reclose_any
 tsset fips date
 
 ** adjusted SCI index with normalization 
-
-xtscc ltotal_spend lcasesnormSCI_loo , fe 
 
 
 reghdfe ltotal_spend lcasesnormSCI_loo [aw=totpop], a(fips date) vce(cluster fips date)
