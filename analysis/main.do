@@ -11,9 +11,9 @@ analysis
 - Table 4. robustness with only remote counties 
 - Table 5. rebustness with Google mobility controlled. 
 - Table 6. internationl analysis 
- - Table A.10. additional countries 
+- Table A.10. additional countries 
 - Table A.8 robustness using alternative consumption measure 
-
+- Figure 1. regression coefficients by consumption category 
 ****************/
 
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
@@ -831,4 +831,143 @@ la var ldeaths "log(County Deaths)"
 local tokeep "saho lcasesnormSCI_loo lcasesnormSCI_loo_saho ldeathsnormSCI_loo ldeathsnormSCI_loo_saho lcases ldeaths"
 esttab temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8 using "${friends}/table/baseline_friends_spend_outofstate_norm_affinity.tex", b(3) replace star(* 0.10 ** 0.05 *** 0.01)  mtitles("(1)" "(2)" "(3)" "(4)" "(5)" "(6)" "(7)" "(8)" ) nonum  brackets se mgroups("log(Consumption Expenditures) Growth", pattern(1 0 0 0 0 0 0 0 0 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) label keep(`tokeep') order(`tokeep') stats(r2 N hasct hast hasstpol hasstY, label("R-squared" "Sample Size" "County FE" "Time FE" "State Policies" "State x Month FE") fmt(2 0)) parentheses nolz nogaps fragment nolines prehead("Dep. var. = ") eqlabel(none)
 local tokeep "saho lcasesnormSCI_loo lcasesnormSCI_loo_saho lcasesnormSCInost_loo lcases ldeaths"
+
+
+
+*------------------------------Figure 1. friends nad behaviors: regression analysis. by category 
+
+*------------------------------ collapsing spending category data into county level 
+
+use "$friends/data/spending/spendbyzip_group_D202002.dta",clear 
+
+** merge zip/fips connector 
+
+merge m:m zip using "$friends/data/other/missouri_zip_county.dta", keep(master match) 
+rename _merge zip_fips_merge 
+rename county fips 
+
+** collapse into county fips level 
+collapse (sum) num_transactions total_spend [aw=afact], by(fips catcode year month day)
+gen user_county = fips 
+
+
+*------------------------------ merge with SCI and acs data 
+
+merge m:1 user_county month day using "$$friends/data/facebook/covid_counties_SCI.dta", ///
+      keep(match)
+rename _merge fb_merge 
+
+gen county = fips 
+
+merge m:1 county using "$$friends/data/facebook/country_SCI_selected.dta", ///
+      keep(master match)
+rename _merge fb_ctry_merge 
+
+merge m:1 month day using "$friends/data/other/covid_world_cases.dta", ///
+          keep(master match) 
+rename _merge world_case_merge
+drop date 
+
+merge m:1 month day using "$friends/data/other/covid_world_deaths.dta", ///
+          keep(master match) 
+rename _merge world_death_merge
+drop date 
+
+merge m:1 county using "$friends/data/social explorer/acs2014_2018.dta", ///
+      keep(master match)
+rename _merge acs_merge 
+
+merge m:1 county month day county using "$$friends/data/other/covid_jhu.dta", ///
+      keep(master match)
+rename _merge jhu_case_merge 
+
+merge m:1 county using "$$friends/data/other/ipums_census_ITshare.dta", ///
+                 keep(master match)
+rename _merge it_merge 
+
+
+gen st =floor(fips/1000)
+label var st "state fips"
+
+merge m:1 st month day using "$friends/data/other/state_saho.dta", ///
+          keep(master match) 
+
+
+drop user_county county 
+
+*------------------------------ date and panel structure
+
+gen date = mdy(month,day,year)
+format date %td 
+order fips date year month day 
+*xtset fips date 
+
+*------------------------------ some filters to avoid outliers 
+drop if num_transactions <= 10
+
+* exclude extreme values for total spending 
+egen total_spend_ub = pctile(total_spend), p(98)
+egen total_spend_lb = pctile(total_spend), p(2)
+replace total_spend=. if total_spend<= total_spend_lb | total_spend >= total_spend_ub
+
+*------------------------------ new variables 
+
+gen state = floor(fips/1000)
+label var state "state fips"
+
+gen pcspend = total_spend/totpop
+label var pcspend "per capita spending"
+
+foreach var in total_spend cases deaths casespc ///
+               deathspc casesSCI deathsSCI ///
+			   casesnormSCI_loo deathsnormSCI_loo{
+			   gen l`var' = log(`var'+1)
+}
+
+
+
+**---------------- time filter 
+
+gen md = month*100+day
+keep if md >= 300
+
+
+** normalized adjusted SCI index cases 
+
+eststo clear
+
+levelsof catcode1 if catcode1!=12, local(cats) 
+
+foreach i of local cats{
+disp `i'
+foreach sci in lcasesnormSCI_loo{
+
+reghdfe ltotal_spend lcases ldeaths `sci' if catcode1==`i', a(fips date) vce(cluster fips)
+estadd local hasX "No",replace
+estadd local hasct "Yes",replace
+estadd local hasst "No",replace
+estadd local hast "Yes",replace
+local catname: label catcode2 `i'
+est sto temp_`i',title(`catname')
+}
+}
+
+la var lcases "log(county cases)"
+la var lcasesnormSCI_loo "log(SCI-weighted cases)"
+	 
+coefplot temp_1 || temp_2 || temp_3 || temp_4 || temp_5 || ///
+         temp_6 ||temp_7 ||temp_8 ||temp_9 || temp_10 || ///
+		 temp_11  ||temp_13 ||temp_14 || ///
+		 temp_15 ||temp_16, ///
+		 msymbol(d)  ///
+         keep(lcases lcasesnormSCI_loo) xline(0) bycoefs byopts(xrescale)  ///
+		 ylabel(1 "IT" 2 "alcohol and tobacoo" 3 "clothing, footwear and cosmetic" 4 "contact-based service" ///
+		        5 "durable" 6 "eating/drinking/leisure outside home" 7 "financial service" ///
+				8 "grocery and food" 9 "home leisure" 10 "housing and utilities" ///
+				11 "non-contact-based" ///
+			    12 "other" 13 "shopping" 14 "transportation" ///
+				15 "travel")
+					
+graph export "$friends/graph/category/coefs_by_category_cases_norm.png",as(png) replace 
+
 
