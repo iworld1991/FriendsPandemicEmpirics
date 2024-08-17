@@ -9,3 +9,4 @@
 - [Counties pairs 500+miles](./data/physical/sf12010countydistancemiles.dta)
 - [Facebook SCI](./data/physical/county_county_data.tsv)
 - [Google mobility](./data/other/Google Mobility - County - Daily.csv)
+- [Affinity Solution Daily Spending data](./data/spending/spend2_bycounty_D_long.dta)
