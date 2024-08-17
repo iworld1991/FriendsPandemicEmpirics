@@ -6,8 +6,8 @@
 
 - Data Name. Sample Period. Link. Location
 - Social Connectedness Index, 2016 and 2019, [Location](./data/facebook/)
-- Debit Card Transaction Data, 2020, Facteus through Safegraph's data-sharing initiative during the Covid pandemic, [Location](./data/spending/)
-- Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing inititive during the Covid and also in the Real-tim EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/)
+- Debit Card Transaction Data, 2020, Facteus through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid pandemic, [Location](./data/spending/)
+- Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing inititive during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/)
 - Google mobility, 2020, Real-time EconomieicTracker as above, [Location](./data/other/)
 - American Community Survey (ACS) [Location](./data/other/)
 
