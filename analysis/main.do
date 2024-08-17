@@ -24,13 +24,23 @@ clear
 set more off, permanently 
 capture log close 
 
-*------------------------------ merge with SCI and acs data 
+*------------------------------ merge with SCI and other data 
 
 use "$friends/data/spending/spendbycountyD.dta",clear
+** this data is only for 2020. So following merge will only keep 2020 data. 
+
+merge 1:1 user_county year month day using "$friends/data/facebook/covid_shocks_counties_SCI.dta", ///
+      keep(match)
+rename _merge fb_shocks_merge 
 
 merge 1:1 user_county year month day using "$friends/data/facebook/covid_counties_SCI.dta", ///
       keep(match)
 rename _merge fb_merge 
+
+
+merge 1:1 user_county year month day using "$friends/data/facebook/covid_counties_SCI_far.dta", ///
+       keep(match) 
+rename _merge fb_shocks_far_merge 
 
 gen county = user_county 
 
@@ -59,6 +69,10 @@ rename _merge acs_merge
 merge m:1 county year month day county using "$friends/data/other/covid_jhu.dta", ///
       keep(master match)
 rename _merge jhu_case_merge 
+
+merge 1:1 county year month day using "$friends/data/other//mobility_county_D.dta", ///
+      keep(master match)
+rename _merge mobility_merge 
 
 merge m:1 county using "$friends/data/social explorer/county_heterog_indicators.dta", ///
                  keep(master match)
@@ -104,10 +118,13 @@ foreach var in total_spend spend_pc trans_pc pcincome hhincome totpop{
 gen l`var' = log(`var')
 }
 
-foreach var in cases deaths lag7_cases lag14_cases lag7_deaths ///
+foreach var in in cases deaths lag7_cases lag14_cases lag7_deaths ///
       lag14_deaths casesSCI_loo deathsSCI_loo casesnormSCI_all deathsnormSCI_all ///
 	   casesnormSCI_loo deathsnormSCI_loo ///
-	  casesnormSCInost_loo deathsnormSCInost_loo /*casesnormPCI_loo deathsnormPCI_loo*/{
+	    casesnormSCInost_loo deathsnormSCInost_loo ///
+		casesSCI_loo_far deathsSCI_loo_far casesnormSCI_all_far deathsnormSCI_all_far ///
+	   casesnormSCI_loo_far deathsnormSCI_loo_far ///
+	    casesnormSCInost_loo_far deathsnormSCInost_loo_far casesnormPCI_loo deathsnormPCI_loo{
 gen l`var' = log(`var'+1)
 }
 
@@ -130,7 +147,11 @@ replace total_spend=. if total_spend<= total_spend_lb | total_spend >= total_spe
 
 keep if year==2020
 gen md = month*100+day
+
+************************************************
+* note that this changes depending on the table 
 keep if md>=315 & md<=700
+**********************************************
 
 
 
@@ -412,9 +433,207 @@ la var ldeaths "log(County Deaths)"
 local tokeep "lcasesnormSCI_loo lcases ldeaths"
 esttab temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 temp11 temp12 using "${friends}/table/subgroup_friends_spend_heterog_norm.tex", b(3) replace star(* 0.10 ** 0.05 *** 0.01)  mtitles("High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low" "High" "Low") nonum  brackets se mgroups("Per Capita Income" "Share Under Age 35" "Share Over Age 65" "Population" "Digital Intensity" "Teleworking Intensity", pattern(1 0 1 0 1 0 1 0 1 0 1 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) label keep(`tokeep') order(`tokeep') stats(r2 N hascty hast, label("R-squared" "Sample Size" "County FE" "Time FE") fmt(2 0)) parentheses nolz nogaps fragment nolines prehead("RHS Variable Partition = ") eqlabel(none)    
 
-*/
 
-*------------------------------Table 6. friends and behaviors: cross-country evidence
+
+*--------------------Table 4. friends and behaviors: regression analysis with only remote SCI counties
+
+
+gen lcasesnormSCI_loo_saho_far=saho*lcasesnormSCI_loo_far
+gen lcasesnormSCI_loo_sahooff_far=saho_off*lcasesnormSCI_loo_far
+gen ldeathsnormSCI_loo_saho_far=saho*ldeathsnormSCI_loo_far
+gen lcasesnormSCInost_loo_saho_far=saho*ldeathsnormSCInost_loo_far
+
+
+global stateX st_emerg saho saho_off bus_close_all bus_open_any reclose_any
+
+tsset fips date
+
+** adjusted SCI index with normalization 
+
+
+reghdfe ltotal_spend lcasesnormSCI_loo_far [aw=totpop], a(fips date) vce(cluster fips)
+ereturn list
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp1
+reghdfe ltotal_spend lcasesnormSCI_loo_far lcases ldeaths [aw=totpop], a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp2
+reghdfe ltotal_spend lcasesnormSCI_loo_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp3
+reghdfe ltotal_spend lcasesnormSCI_loo_far lcasesnormSCI_loo_saho_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp4
+reghdfe ltotal_spend lcasesnormSCInost_loo_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp5
+reghdfe ltotal_spend ldeathsnormSCI_loo_far, a(fips date) vce(cluster fips)
+ereturn list
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp6
+reghdfe ltotal_spend ldeathsnormSCI_loo_far lcases ldeaths, a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "No",replace
+estadd local hasstY "No",replace
+est sto temp7
+reghdfe ltotal_spend ldeathsnormSCI_loo_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp8
+reghdfe ltotal_spend ldeathsnormSCI_loo_far ldeathsnormSCI_loo_saho_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp9
+reghdfe ltotal_spend ldeathsnormSCInost_loo_far lcases ldeaths $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+est sto temp10
+
+
+la var lcasesnormSCI_loo_far "SCI-weighted Cases Far"
+la var ldeathsnormSCI_loo_far "SCI-weighted Deaths Far"
+
+la var lcasesnormSCInost_loo_far "SCI-weighted Cases Far, Other States "
+la var ldeathsnormSCInost_loo_far "SCI-weighted Deaths Far, Other States"
+
+la var lcasesnormSCI_loo_saho_far "\quad $\times$ SAHO"
+la var ldeathsnormSCI_loo_saho_far "\quad $\times$ SAHO"
+la var saho "Has SAHO"
+la var lcases "log(County Cases)"
+la var ldeaths "log(County Deaths)"
+
+
+local tokeep "saho lcasesnormSCI_loo_far lcasesnormSCI_loo_saho_far ldeathsnormSCI_loo_far ldeathsnormSCI_loo_saho_far lcasesnormSCInost_loo_far ldeathsnormSCInost_loo_far lcases ldeaths"
+esttab temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8 temp9 temp10 using "${friends}/table/robustness_shocks_friends_spend_far_norm.tex", b(3) replace star(* 0.10 ** 0.05 *** 0.01)  mtitles("(1)" "(2)" "(3)" "(4)" "(5)" "(6)" "(7)" "(8)" "(9)" "(10)") nonum  brackets se mgroups("log(Consumption Expenditures)", pattern(1 0 0 0 0 0 0 0 0 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) label keep(`tokeep') order(`tokeep') stats(r2 N hasct hast hasstpol hasstY, label("R-squared" "Sample Size" "County FE" "Time FE" "State Policies" "State x Month FE") fmt(2 0)) parentheses nolz nogaps fragment nolines prehead("Dep. var. = ") eqlabel(none)
+
+
+*--------------------Table 5. robustness: controlling for mobility. whole group 
+
+gen lcasesnormSCI_loo_saho=saho*lcasesnormSCI_loo
+gen lcasesnormSCI_loo_sahooff=saho_off*lcasesnormSCI_loo
+gen ldeathsnormSCI_loo_saho=saho*ldeathsnormSCI_loo
+gen lcasesnormSCInost_loo_saho=saho*lcasesnormSCInost_loo
+
+global stateX st_emerg saho saho_off bus_close_all bus_open_any reclose_any
+
+tsset fips date
+
+** adjusted SCI index with normalization 
+
+xtscc ltotal_spend lcasesnormSCI_loo , fe 
+
+   
+reghdfe ltotal_spend lcasesnormSCI_loo lcases ldeaths gps_transit_stations $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp1
+
+reghdfe ltotal_spend lcasesnormSCI_loo lcases ldeaths gps_workplaces  $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp2
+
+reghdfe ltotal_spend lcasesnormSCI_loo lcases ldeaths gps_residential $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp3
+
+
+reghdfe ltotal_spend lcasesnormSCI_loo lcases ldeaths gps_away_from_home $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp4
+
+reghdfe ltotal_spend ldeathsnormSCI_loo lcases ldeaths gps_transit_stations $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp5
+
+reghdfe ltotal_spend ldeathsnormSCI_loo lcases ldeaths gps_workplaces $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp6
+
+
+reghdfe ltotal_spend ldeathsnormSCI_loo lcases ldeaths gps_residential $stateX, a(fips date st#month) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp7
+
+reghdfe ltotal_spend ldeathsnormSCI_loo lcases ldeaths gps_away_from_home [aw=totpop], a(fips date) vce(cluster fips)
+estadd local hasct "Yes",replace
+estadd local hast "Yes",replace
+estadd local hasstpol "Yes",replace
+estadd local hasstY "Yes",replace
+
+est sto temp8
+
+
+la var gps_residential "time at home"
+la var gps_workplaces "time at workplace"
+la var gps_away_from_home "time away from home"
+la var gps_transit_stations "time at transit"
+
+
+la var lcasesnormSCI_loo "log(SCI-weighted Cases)"
+la var ldeathsnormSCI_loo "log(SCI-weighted Deaths)"
+la var lcasesnormSCInost_loo "log(SCI-weighted Cases, Other States)"
+la var ldeathsnormSCInost_loo "log(SCI-weighted Deaths, Other States)"
+
+la var lcases "log(County Cases)"
+la var ldeaths "log(County Deaths)"
+
+local tokeep "lcasesnormSCI_loo ldeathsnormSCI_loo lcases ldeaths gps_residential gps_workplaces gps_away_from_home gps_transit_stations"
+
+esttab temp1 temp2 temp3 temp4 temp5 temp6 temp7 temp8 using "${friends}/table/robutness_mobility_norm.tex", b(3) replace star(* 0.10 ** 0.05 *** 0.01)  mtitles("(1)" "(2)" "(3)" "(4)" "(5)" "(6)" "(7)" "(8)") nonum  brackets se mgroups("log(Consumption Expenditures)", pattern(1 0 0 0 0 0 0 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) label keep(`tokeep') order(`tokeep') stats(r2 N hasct hast hasstpol hasstY, label("R-squared" "Sample Size" "County FE" "Time FE" "State Policies" "State x Month FE") fmt(2 0)) parentheses nolz nogaps fragment nolines prehead("Dep. var. = ") eqlabel(none)
+
+*------------------------------Table 6. cross-country evidence
 
 rename deaths_spaine deaths_spain 
 
@@ -505,7 +724,7 @@ esttab country_* using "$friends/table/cross_country_friends_spend_after2020marc
 			 parentheses nolz nogaps fragment nolines prehead("Dep. var. = ") eqlabel(none)
 */
 
-*--------------------Table A.10. friends and behaviors: cross-country evidence  additional countries 
+*--------------------Table A.10. cross-country evidence  additional countries 
 
 eststo clear
 
