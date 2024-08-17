@@ -7,7 +7,7 @@
 - Table A.4-A.5: robustness with SCI weighted idio shocks
 - Table A.6-A.7: robustness with SCI weighted idio and orthogonalized shocks
 - Table A.9. sensitivity tests of different sample periods 
-
+- Figure A.1. monthly consumption by category in 2020
 ****************/
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
@@ -672,3 +672,78 @@ local temp1: di %3.2f r(rho)
 binscatter deathsnormSCI_loo deathsnormPCI_loo,ytitle("Normalized SCI-weighted Deaths") xtitle("Normalized PCI-weighted Deaths") note(Correlation = `temp1')
 graph export "$friends/graph/compare_deaths_SCI_PCI.pdf", as(pdf) replace
 
+
+
+*-----------------------------------------Figure A.1. bar plot by category 
+
+use "$friends/data/spending/spend_group_D.dta",clear
+
+** decode and encode again
+
+decode catcode1, gen(category)
+replace category = "alcohol and tobacoo" if category=="alcohol and tabacoo"
+drop catcode1 
+encode category, gen(catcode)
+
+
+
+** change units 
+
+replace total_spend = total_spend/1000000
+label var total_spend "total spending in million dollars"
+replace num_transactions = num_transactions/1000
+label var total_spend "total number of transactions in thousand"
+
+** gen log 
+gen lspend = log(total_spend) 
+label var lspend "log spending"
+
+
+** month and day filter 
+gen md = month*100+day
+
+
+
+** different time 
+preserve 
+
+keep if md>=200 & md<700 & year==2020
+
+
+** plot the average 
+graph hbar (mean) total_spend, ///
+       over(month,relabel(1 "Feb" 2 "March" 3 "April" 4 "May" 5 "June")) ///
+       over(catcode,sort(1)) ///
+	   asyvar ///
+	   bar(1, color(blue*0.6)) bar(2, color(red*0.7)) ///
+	   legend(col(3)) ///
+	   ytitle("average daily spending in million dollars")
+	   
+graph export "${friends}graph/category/bar_bycategory.png",as(png) replace 
+
+
+restore
+
+** collapse to month
+
+collapse (sum) total_spend num_transactions, by(catcode year month) 
+
+gen date_string = string(year)+ "M"+string(month) 
+
+gen date = monthly(date_string,"YM")
+format date %tm
+drop date_string 
+
+
+** set it to panel 
+xtset catcode date
+
+** reshape to a wide format 
+
+preserve
+drop num_transactions
+reshape wide total_spend, i(date) j(catcode) 
+save "${friends}data/spending/spend_groupM.dta",replace
+restore
+
+* this is for validating consumption measures. 
