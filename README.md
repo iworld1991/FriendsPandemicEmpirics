@@ -5,18 +5,18 @@
 ## Raw Data Sources
 
 - Data Name. Sample Period. Link. Location
-- Social Connectedness Index, 2016 and 2019. [Location](./data/facebook/)
-- Debit Card Transaction Data, 2020, Facteus through Safegraph's data-sharing initiative during the Covid pandemic.[Location](./data/spending/)
+- Social Connectedness Index, 2016 and 2019, [Location](./data/facebook/)
+- Debit Card Transaction Data, 2020, Facteus through Safegraph's data-sharing initiative during the Covid pandemic, [Location](./data/spending/)
 - Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through Safegraph's dta-sharing inititive during the Covid and also in the Real-tim EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/)
-- Google mobility, 2020, Real-time EconomieicTracker as above.[Location](./data/other/)
-- American Community Survey (ACS) ([Location](./data/other/)
+- Google mobility, 2020, Real-time EconomieicTracker as above, [Location](./data/other/)
+- American Community Survey (ACS) [Location](./data/other/)
 
-### large size (>50mb)
-- [County pairs 500+miles](./data/physical/sf12010countydistancemiles.dta)
-- [Facebook SCI](./data/physical/county_county_data.tsv)
-- [Google mobility](./data/other/)
-- [Affinity Solution Daily Spending data](./data/spending/spend2_bycounty_D_long.dta)
-
+### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
+- [County pairs 500+miles](./data/physical/):sf12010countydistancemiles.dta
+- [Facebook SCI](./data/physical/): county_county_data.tsv
+- [Google mobility](./data/other/): Google Mobility - County - Daily.csv
+- [Affinity Solution Daily Spending data](./data/spending): spend2_bycounty_D_long.dta
+ 
 ## Code Structure 
 ### Python
 - [Reshaping raw microdata of Covid series](./analysis/python/covid_reshape.py)
