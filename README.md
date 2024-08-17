@@ -32,4 +32,6 @@
 - [Table A.3, A.4](./analysis/main.do)
 - [Table A.2](./analysis/python/Compare.ipynb)
 
+### Special note
+-  Figure 1 is based on a large-sized proprietary micro dataset we obtained from Facteus. It is not included in this replication package. 
 
