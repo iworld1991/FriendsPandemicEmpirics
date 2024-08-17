@@ -8,8 +8,8 @@ analysis
 - Table 1. baseline regression results  
 - Table 2. heterogeneity analysis 
 - Table 3. robustness with phsyical distance weighted measures controlled 
-- Table 4. 
-- Table 5. 
+- Table 4. robustness with only remote counties 
+- Table 5. rebustness with Google mobility controlled. 
 - Table 6. internationl analysis 
  - Table A.10. additional countries 
 - Table A.8 robustness using alternative consumption measure 
