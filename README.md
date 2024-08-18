@@ -4,7 +4,7 @@
 
 ## Raw Data Sources
 
-- Data Name. Sample Period. Link. Location
+- Data Name. Sample Period. Source, Location
 - Covid cases/deaths by county by day, and by countries by day, 2020-2023, provided by [JHU Center for Systems Science and Engineering](https://github.com/CSSEGISandData/COVID-19), [./data/other/](./data/other/)
 - Debit Card Transaction Data, 2020, Facteus through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid pandemic, [./data/spending/spend2bycountyD.dta](./data/spending/spend2bycountyD.dta): 
 - Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [./data/spending/spend2bycountyD.dta](./data/spending/spend2bycountyD.dta): 
