@@ -24,7 +24,7 @@
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
 
 
-/*
+
 *------------------------------ clean facebook SCI
 
 *could (But do not for model reasons) exclude own county ties and create measure excluding own state
@@ -353,7 +353,7 @@ replace year="2023" if year=="23"
 destring year month day,replace
 ren FIPS county
 drop UID date_id Population date
-merge m:1 county using "$friends/data/social explorer/acs2014_2018.dta"
+merge m:1 county using "$friends/data/social_explorer/acs2014_2018.dta"
 keep if _merge==3
 drop _merge
 gen casespc=cases/totpop
@@ -393,7 +393,7 @@ saveold "$friends/data/other/covid_world_deaths.dta",replace version(13)
 *------------------------------ clean social explorer
 
 *https://www.socialexplorer.com/tables/ACS2018_5yr/R12528551
-quietly infile using "$friends/data/social explorer/acs2014_2018dic.dct", using("$friends/data/social explorer/acs2014_2018data.txt") clear
+quietly infile using "$friends/data/social_explorer/acs2014_2018dic.dct", using("$friends/data/social_explorer/acs2014_2018data.txt") clear
 ren FIPS county
 destring county,replace
 ren A00001_001 totpop
@@ -419,10 +419,10 @@ ren A14006_001 hhincome
 ren A14024_001 pcincome
 ren A14028_001 gini
 keep county totpop popdens male age* race* married educ* poverty* hhincome pcincome gini
-saveold "$friends/data/social explorer/acs2014_2018.dta",replace version(13)
+saveold "$friends/data/social_explorer/acs2014_2018.dta",replace version(13)
 
 ***create binary indicators for high/low heterogeneity analysis
-use "$friends/data/social explorer/acs2014_2018.dta",clear
+use "$friends/data/social_explorer/acs2014_2018.dta",clear
 quietly sum hhincome,d
 gen highmedinc=cond(hhincome>`r(p50)',1,0)
 quietly sum pcincome,d
@@ -443,13 +443,13 @@ merge 1:1 county using "$friends/data/other/ipums_census_ITshare.dta"
 keep if _merge==3 | _merge==1
 drop _merge
 keep county high*
-saveold "$friends/data/social explorer/county_heterog_indicators.dta",replace version(13)
+saveold "$friends/data/social_explorer/county_heterog_indicators.dta",replace version(13)
 
 
 *-------------------- laus data for county unemployment rate stats
 
 *2020 LAUS: https://www.socialexplorer.com/tables/US_unemployment_2020/R12654293
-insheet using "$friends/data/social explorer/laus2020data.txt",clear
+insheet using "$friends/data/social_explorer/laus2020data.txt",clear
 ren geo_fips county
 ren org_us_unemployment_018_20jul_ra urate7
 ren org_us_unemployment_017_20jun_ra urate6
@@ -460,7 +460,7 @@ ren org_us_unemployment_002_20feb_ra urate2
 ren org_us_unemployment_001_20jan_ra urate1
 keep county urate*
 reshape long urate,i(county) j(month)
-saveold "$friends/data/social explorer/laus2020.dta",replace version(13)
+saveold "$friends/data/social_explorer/laus2020.dta",replace version(13)
 
 
 *--------------------------create mobility data 
