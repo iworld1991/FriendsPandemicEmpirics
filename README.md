@@ -8,12 +8,12 @@
 - Covid cases/deaths by county by day, and by countries by day, 2020-2023,[JHU](https://github.com/CSSEGISandData/COVID-19), [Location](./data/other/)
 - Debit Card Transaction Data, 2020, Facteus through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid pandemic, [Location](./data/spending/): spend2bycountyD.dta
 - Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/): spend2bycountyD.dta
-- American Community Survey (ACS) [Location](./data/social explorer/): acs2014_2018.dta
-- County heterogeneity indicators (created from ACS) [Location](./data/social explorer): county_heterog_indicators.dta
-- County unemployment rate [Location](./data/social%20explorer/):laus2020.dta 
-- State Covid Policies [Location](./data/other/): 
-- State Stay-at-home-order Policies [Location](./data/other/):state_policies.dta
-- IPUMS county information [Location](./data/other/): ipums_census_ITshare.dta 
+- American Community Survey (ACS) 2014-2018, [Location](./data/social explorer/): acs2014_2018.dta
+- County heterogeneity indicators (created from ACS), 2020, [Location](./data/social explorer): county_heterog_indicators.dta
+- County unemployment rate, 2020, [Location](./data/social%20explorer/laus2020.dta): 
+- State Covid Policies, 2020,[Location](./data/other/state_policies.dta)
+- State Stay-at-home-order Policies, 2020, [Location](./data/other/state_policies.dta)
+- IPUMS county information 2020, [Location](./data/other/ipums_census_ITshare.dta) 
 - Facebook SCI between each U.S. county to foreign countries, 2019, [Location](./data/facebook/): County_Country.csv 
 
 ### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
