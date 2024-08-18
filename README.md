@@ -14,7 +14,7 @@
 - State Covid Policies, 2020,[./data/other/state_policies.dta](./data/other/state_policies.dta)
 - State Stay-at-home-order Policies, 2020, [./data/other/state_policies.dta](./data/other/state_policies.dta)
 - IPUMS county information 2020, [./data/other/ipums_census_ITshare.dta](./data/other/ipums_census_ITshare.dta) 
-- Facebook SCI between each U.S. county to foreign countries, 2019, [Location](./data/facebook/): County_Country.csv 
+- Facebook SCI between each U.S. county to foreign countries, 2019, [./data/facebook/County_Country.csv](./data/facebook/County_Country.csv) 
 
 ### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
 - County pairs 500+miles, 2020, [Location](./data/physical/): sf12010countydistancemiles.dta
