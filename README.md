@@ -5,11 +5,11 @@
 ## Raw Data Sources
 
 - Data Name. Sample Period. Link. Location
-- Covid cases/deaths by county by day, and by countries by day, 2020-2023,[JHU](https://github.com/CSSEGISandData/COVID-19), [Location](./data/other/)
-- Debit Card Transaction Data, 2020, Facteus through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid pandemic, [Location](./data/spending/): spend2bycountyD.dta
-- Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/): spend2bycountyD.dta
-- American Community Survey (ACS) 2014-2018, [Location](./data/social explorer/): acs2014_2018.dta
-- County heterogeneity indicators (created from ACS), 2020, [Location](./data/social explorer): county_heterog_indicators.dta
+- Covid cases/deaths by county by day, and by countries by day, 2020-2023,[JHU](https://github.com/CSSEGISandData/COVID-19), [./data/other/](./data/other/)
+- Debit Card Transaction Data, 2020, Facteus through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid pandemic, [./data/spending/spend2bycountyD.dta](./data/spending/spend2bycountyD.dta): 
+- Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [./data/spending/spend2bycountyD.dta](./data/spending/spend2bycountyD.dta): 
+- American Community Survey (ACS) 2014-2018, [./data/social explorer/acs2014_2018.dta](./data/social explorer/acs2014_2018.dta): 
+- County heterogeneity indicators (created from ACS), 2020, [./data/social explorer/county_heterog_indicators.dta](./data/social explorer/county_heterog_indicators.dta) 
 - County unemployment rate, 2020, [Location](./data/social%20explorer/laus2020.dta): 
 - State Covid Policies, 2020,[Location](./data/other/state_policies.dta)
 - State Stay-at-home-order Policies, 2020, [Location](./data/other/state_policies.dta)
