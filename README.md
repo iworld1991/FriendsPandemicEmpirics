@@ -22,7 +22,7 @@
 
 - Facebook SCI, 2019, [Location](./data/facebook/), [county_county_data.tsv](https://www.dropbox.com/scl/fi/hfcoal547ic2mptmay94j/county_county_data.tsv?rlkey=ew29d9oqb1xwqz4h37gra1m81&dl=0)
 - County-to-county distance, 2020, [Location](./data/physical/), [sf12010countydistancemiles.dta](https://www.dropbox.com/scl/fi/dae2cqs09ha4ywhn9q9dc/sf12010countydistancemiles.dta?rlkey=akg27mz2vv2dx77hv2k4d703p&dl=0), [sf12010countydistance500miles.csv](https://www.dropbox.com/scl/fi/4jaz2awco10vg1cfpjrrq/sf12010countydistance500miles.csv?rlkey=5nis15kn252o0dmcbku8b62n1&dl=0)
-- Google Mobility, 2020, Real-time EconomicTracker, [Location](./data/other/): [Google Mobility - County - Daily.csv](https://www.dropbox.com/scl/fi/rddl87guqsup4et4ty03d/Google-Mobility-County-Daily.csv?rlkey=3s1fw134tehuyznxyr4qlmq87&dl=0)
+- Google Mobility, 2020, Real-time EconomicTracker, [Location](./data/other/), [Google Mobility - County - Daily.csv](https://www.dropbox.com/scl/fi/rddl87guqsup4et4ty03d/Google-Mobility-County-Daily.csv?rlkey=3s1fw134tehuyznxyr4qlmq87&dl=0)
  
 ## Code Structure 
 ### Python
