@@ -17,10 +17,10 @@
 - Facebook SCI between each U.S. county to foreign countries, 2019, [./data/facebook/County_Country.csv](./data/facebook/County_Country.csv) 
 
 ### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
-- County pairs 500+miles, 2020, [Location](./data/physical/): sf12010countydistancemiles.dta
-- Facebook SCI, 2019, [Location](./data/facebook/): county_county_data.tsv
-- Google Mobility, 2020, Real-time EconomicTracker, [Location](./data/other/): Google Mobility - County - Daily.csv
-- Affinity Solution Daily Spending data, 2020-2023, [Location](./data/spending): spend2_bycounty_D_long.dta
+- County pairs 500+miles, 2020, [./data/physical/sf12010countydistancemiles.dta](./data/physical/sf12010countydistancemiles.dta): 
+- Facebook SCI, 2019, [./data/facebook/county_county_data.tsv](./data/facebook/county_county_data.tsv): 
+- Google Mobility, 2020, Real-time EconomicTracker, [./data/other/](./data/other/): Google Mobility - County - Daily.csv
+- Affinity Solution Daily Spending data, 2020-2023, [./data/spending/spend2_bycounty_D_long.dta](./data/spending/spend2_bycounty_D_long.dta): 
  
 ## Code Structure 
 ### Python
