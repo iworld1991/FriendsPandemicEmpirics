@@ -42,5 +42,4 @@
 - [Table A.2](./analysis/python/Compare.ipynb)
 
 ### Special note
--  Figure 1 is based on a large-sized proprietary micro dataset we obtained from Facteus. It is not included in this replication package. 
-
+-  The package contains all raw data and code that replicates all tables and figures in the publication, except for the microdata used to produce Figure 1. Being a large proprietary dataset containing daily MCC-code transactions by zip code we obtained from SafeGraph, it is not included in this repo due to our data-sharing agreement with the provider.
