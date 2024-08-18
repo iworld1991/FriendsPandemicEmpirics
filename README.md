@@ -1,4 +1,4 @@
-# Replication Repo of _Learing from Friends in a Pandemic, Social Network and Macroeconomic Responses of Consumption_
+# Replication Repo of _Learning from Friends in a Pandemic, Social Networks and the Macroeconomic Responses of Consumption_
 - This is a replication repo of the published paper in _European Economic Review_
 - Authors: [Tao Wang](taowangeconomics@gmail.com),  [Christos Makridis](christos.a.makridis@gmail.com)
 
