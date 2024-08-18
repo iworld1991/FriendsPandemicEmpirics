@@ -18,7 +18,7 @@
 
 ### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
 - Covid county daily data, 2020-2023, [Location](./data/other/): time_series_covid19_confirmed_US.csv,time_series_covid19_deaths_US.csv
-- County-to-county distance, 2020, [Location](./data/physical/): sf12010countydistancemiles.csv, sf12010countydistance500miles.csv 
+- County-to-county distance, 2020, [Location](./data/physical/): sf12010countydistancemiles.dta, sf12010countydistance500miles.dta 
 - Facebook SCI, 2019, [Location](./data/facebook/): county_county_data.tsv
 - Google Mobility, 2020, Real-time EconomicTracker, [Location](./data/other/): Google Mobility - County - Daily.csv
 - Affinity Solution Daily Spending data, 2020-2023, [Location](./data/spending/): spend2_bycounty_D_long.dta
