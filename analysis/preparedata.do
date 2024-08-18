@@ -20,9 +20,7 @@
 
 ****************/
 
-*global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
-
 
 *------------------------------ clean facebook SCI
 
@@ -236,10 +234,10 @@ saveold "$friends/data/facebook/covid_counties_SCI_monthly.dta",replace version(
 *-------------------------------------- create SCI cases and deaths measures for only counties 500 +miles away 
 
 *exclude nearby (within 500 miles) counties: https://www.nber.org/research/data/county-distance-database
-insheet using "$friends/data/sf12010countydistance500miles.csv",clear
+insheet using "$friends/data/physical/sf12010countydistance500miles.csv",clear
 renvars county1 county2 \ user_county fr_county
 drop mi
-merge 1:m user_county fr_county using "$friends\data\facebook\county_county_data.dta"
+merge 1:m user_county fr_county using "$friends/data/facebook/county_county_data.dta"
 keep if _merge==2
 drop _merge
 save "$friends/data/facebook/county_county_data_far.dta",replace
@@ -305,7 +303,7 @@ gen normPCI_loo=distance/totPCI_loo
 keep county1 county2 normPCI_all normPCI_loo
 save "$friends/data/physical/sf12010countydistancemiles_clean.dta",replace
 
-*----- first montly 
+*----- first monthly 
 
 *for each county, keep a particular tid and merge in SCI data
 quietly forval t=1/39{
