@@ -33,7 +33,7 @@
 
 ## Replication of Tables and Figures in the Publication
 
-### Main texts
+### Main results
 - [Figure 1, Table 1-6](./analysis/main.do)
 ### Online Appendix 
 - [Table A.1-A.2, A.4-A.7, A.9, Figure A.1,A.5,A.6](./analysis/robustness.do)
