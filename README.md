@@ -10,6 +10,10 @@
 - Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing inititive during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [Location](./data/spending/)
 - Google mobility, 2020, Real-time EconomieicTracker as above, [Location](./data/other/)
 - American Community Survey (ACS) [Location](./data/other/)
+- State Covid Policies [Location](./data/other/)
+- State Stay-at-home-order Policies [Location](./data/other/)
+- IPUMS county information [Location](./data/other/) 
+
 
 ### large size (>50mb). This data is not on GitHub, but in the EER's replication archive.
 - [County pairs 500+miles](./data/physical/): sf12010countydistancemiles.dta
