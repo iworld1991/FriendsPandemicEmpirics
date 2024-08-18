@@ -4,13 +4,13 @@
 
 - clean Facebook SCI index 
   - for both county-to-county and country-to-CounTRY
+- clean Covid daily and monthly case/death data from JHU 
+  - by both counTY and counTRY  
 - create SCI weighted cases/deaths 
    - daily and then monthly 
    - and one with only counties +500 miles away 
 - create PCI weighted cases/deaths 
 - clean data on stay at home orders
-- clean Covid daily and monthly case/death data from JHU 
-  - by both counTY and counTRY  
 - clean acs data for county heterogeneity variables 
   - clean ipums census data for the share of IT 
 - clean laus county data 
@@ -22,7 +22,6 @@
 
 *global friends C:\Users\chris\Dropbox\1Publication and Research\2020 - Consumption and social networks
 global friends "/Users/tao/Dropbox/FriendsPandemicEmpirics/"
-
 
 
 *------------------------------ clean facebook SCI
@@ -93,6 +92,66 @@ use "$friends/data/facebook/country_SCI_selected.dta",clear
 sum sci_italy sci_southkorea sci_france sci_spain if county==04013 // maricopa county
 sum sci_italy sci_southkorea sci_france sci_spain if county==06075 // san francisco
 */
+
+
+*----------------------------Covid case/death data for county and for countries 
+
+*https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
+** first run the python script python/covid_reshape.py to reshape the raw data 
+
+***using the JHU tracker
+use "$friends/data/other/covid_counties_jhu.dta",clear
+gen length=length(date)
+gen month=substr(date,1,1) if substr(date,2,1)=="/"
+replace month=substr(date,1,2) if substr(date,3,1)=="/"
+gen day=""
+replace day=substr(date,-4,1) if substr(date,-5,1)=="/" & substr(date,-3,1)=="/"
+replace day=substr(date,-5,2) if substr(date,-6,1)=="/" & substr(date,-3,1)=="/"
+gen year=substr(date,-2,2)
+replace year="2020" if year=="20"
+replace year="2021" if year=="21"
+replace year="2022" if year=="22"
+replace year="2023" if year=="23"
+destring year month day,replace
+ren FIPS county
+drop UID date_id Population date
+merge m:1 county using "$friends/data/social_explorer/acs2014_2018.dta"
+keep if _merge==3
+drop _merge
+gen casespc=cases/totpop
+gen deathspc=deaths/totpop
+drop hhincome-poverty_65pl
+egen tid=group(year month day)
+tsset county tid
+gen lag7_cases=L7.cases
+gen lag14_cases=L14.cases
+gen lag7_deaths=L7.deaths
+gen lag14_deaths=L14.deaths
+drop tid
+saveold "$friends/data/other/covid_jhu.dta",replace version(13)
+
+*save monthly
+use "$friends/data/other/covid_jhu.dta",clear
+gen date = mdy(month, day, year)
+format date %d
+bysort county year month (date): gen last_day = _N == _n
+keep if last_day == 1
+drop day date
+save "$friends/data/other/covid_jhu_monthly.dta",replace
+
+
+*get US Time series: https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
+import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("cases_data")
+gen month=month(date)
+gen day=day(date)
+saveold "$friends/data/other/covid_world_cases.dta",replace version(13)
+
+import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("deaths_data")
+gen month=month(date)
+gen day=day(date)
+saveold "$friends/data/other/covid_world_deaths.dta",replace version(13)
+
+
 
 *-------------------------------------- create SCI measures for cases and deaths 
 **************************************************************
@@ -330,64 +389,6 @@ quietly foreach var in `torep'{
 	replace `var'=0 if `var'==.
 }
 saveold "$friends/data/other/state_saho.dta",replace version(13)
-
-
-*----------------------------Covid case/death data for county and for countries 
-
-*https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
-** first run the python script python/covid_reshape.py to reshape the raw data 
-
-***using the JHU tracker
-use "$friends/data/other/covid_counties_jhu.dta",clear
-gen length=length(date)
-gen month=substr(date,1,1) if substr(date,2,1)=="/"
-replace month=substr(date,1,2) if substr(date,3,1)=="/"
-gen day=""
-replace day=substr(date,-4,1) if substr(date,-5,1)=="/" & substr(date,-3,1)=="/"
-replace day=substr(date,-5,2) if substr(date,-6,1)=="/" & substr(date,-3,1)=="/"
-gen year=substr(date,-2,2)
-replace year="2020" if year=="20"
-replace year="2021" if year=="21"
-replace year="2022" if year=="22"
-replace year="2023" if year=="23"
-destring year month day,replace
-ren FIPS county
-drop UID date_id Population date
-merge m:1 county using "$friends/data/social_explorer/acs2014_2018.dta"
-keep if _merge==3
-drop _merge
-gen casespc=cases/totpop
-gen deathspc=deaths/totpop
-drop hhincome-poverty_65pl
-egen tid=group(year month day)
-tsset county tid
-gen lag7_cases=L7.cases
-gen lag14_cases=L14.cases
-gen lag7_deaths=L7.deaths
-gen lag14_deaths=L14.deaths
-drop tid
-saveold "$friends/data/other/covid_jhu.dta",replace version(13)
-
-*save monthly
-use "$friends/data/other/covid_jhu.dta",clear
-gen date = mdy(month, day, year)
-format date %d
-bysort county year month (date): gen last_day = _N == _n
-keep if last_day == 1
-drop day date
-save "$friends/data/other/covid_jhu_monthly.dta",replace
-
-
-*get US Time series: https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series
-import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("cases_data")
-gen month=month(date)
-gen day=day(date)
-saveold "$friends/data/other/covid_world_cases.dta",replace version(13)
-
-import excel using "$friends/data/other/covid_world.xlsx",clear firstrow sheet("deaths_data")
-gen month=month(date)
-gen day=day(date)
-saveold "$friends/data/other/covid_world_deaths.dta",replace version(13)
 
 
 *------------------------------ clean social explorer

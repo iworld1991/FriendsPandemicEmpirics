@@ -62,7 +62,7 @@ merge m:1 month day using "$friends/data/other/covid_world_deaths.dta", ///
 rename _merge world_death_merge
 drop date 
 
-merge m:1 county using "$friends/data/social explorer/acs2014_2018.dta", ///
+merge m:1 county using "$friends/data/social_explorer/acs2014_2018.dta", ///
       keep(master match)
 rename _merge acs_merge 
 
@@ -74,7 +74,7 @@ merge 1:1 county year month day using "$friends/data/other//mobility_county_D.dt
       keep(master match)
 rename _merge mobility_merge 
 
-merge m:1 county using "$friends/data/social explorer/county_heterog_indicators.dta", ///
+merge m:1 county using "$friends/data/social_explorer/county_heterog_indicators.dta", ///
                  keep(master match)
 rename _merge indicator_merge 
 
