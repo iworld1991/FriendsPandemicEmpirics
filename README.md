@@ -10,9 +10,9 @@
 - Debit+ Credit Card Transaction Data, 2020-2023, Affinity Solution, through [Safegraph](https://www.safegraph.com/blog/safegraph-partners-with-dewey)'s data-sharing initiative during the Covid and also in the Realtime EconomicTracker by [Opportunity Insights](https://opportunityinsights.org), [./data/spending/spend2bycountyD.dta](data/spending/spend2bycountyD.dta) for 2020 only, and [/data/spending/spend2_bycounty_D_long.dta](/data/spending/spend2_bycounty_D_long.dta) for 2020-2023.
 - American Community Survey (ACS) 2014-2018, [/data/social_explorer/acs2014_2018.dta](/data/social_explorer/acs2014_2018.dta)
 - County heterogeneity indicators (created from ACS), 2020, [/data/social_explorer/county_heterog_indicators.dta](/data/social_explorer/county_heterog_indicators.dta) 
-- County unemployment rate, 2020, [/data/social%20explorer/laus2020.dta](/data/social%20explorer/laus2020.dta) 
+- County unemployment rate, 2020, [/data/social_explorer/laus2020.dta](/data/social%20explorer/laus2020.dta) 
 - State Covid Policies, 2020,[/data/other/state_policies.dta](/data/other/state_policies.dta)
-- State Stay-at-home-order Policies, 2020, [/data/other/state_policies.dta](/data/other/state_policies.dta)
+- State Stay-at-home-order Policies, 2020, [/data/other/state_policies.dta](/data/other/state_saho.xlsx)
 - IPUMS county information 2020, [/data/other/ipums_census_ITshare.dta](/data/other/ipums_census_ITshare.dta) 
 - Facebook SCI between each U.S. county to foreign countries, 2019, [/data/facebook/County_Country.csv](/data/facebook/County_Country.csv) 
 
